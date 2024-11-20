@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *   Ioannis Giannopoulos Section 1
  *
  *   This java file contains the problem solutions for the methods selectionSort,
  *   mergeSortDivisibleByKFirst, asteroidsDestroyed, and numRescueCanoes methods.
@@ -33,18 +33,25 @@ public class ProblemSolutions {
     }
 
     public static void selectionSort(int[] values, boolean ascending ) {
-
         int n = values.length;
-
+        // Iterate through each value in values
         for (int i = 0; i < n - 1; i++) {
-
-            // YOU CODE GOES HERE -- COMPLETE THE INNER LOOP OF THIS
-            // "SELECTION SORT" ALGORITHM.
-            // DO NOT FORGET TO ADD YOUR NAME / SECTION ABOVE
-
+            int swapIndex = i;
+            // Select the lowest or highest integer depending on if the array needs to be sorted in asc or desc order
+            for (int j = i + 1; j < n; j++) {
+                if ((ascending && values[j] < values[swapIndex]) || (!ascending && values[j] > values[swapIndex])) {
+                    swapIndex = j;
+                }
+            }
+            // Swap the values and pass if the swap index has not changed
+            if (swapIndex != i) {
+                int temp = values[i];
+                values[i] = values[swapIndex];
+                values[swapIndex] = temp;
+            }
         }
 
-    } // End class selectionSort
+    }
 
 
     /**
@@ -90,21 +97,69 @@ public class ProblemSolutions {
      * The merging portion of the merge sort, divisible by k first
      */
 
-    private void mergeDivisbleByKFirst(int arr[], int k, int left, int mid, int right)
-    {
-        // YOUR CODE GOES HERE, THIS METHOD IS NO MORE THAN THE STANDARD MERGE PORTION
-        // OF A MERGESORT, EXCEPT THE NUMBERS DIVISIBLE BY K MUST GO FIRST WITHIN THE
-        // SEQUENCE PER THE DISCUSSION IN THE PROLOGUE ABOVE.
-        //
-        // NOTE: YOU CAN PROGRAM THIS WITH A SPACE COMPLEXITY OF O(1) OR O(N LOG N).
-        // AGAIN, THIS IS REFERRING TO SPACE COMPLEXITY. O(1) IS IN-PLACE, O(N LOG N)
-        // ALLOCATES AUXILIARY DATA STRUCTURES (TEMPORARY ARRAYS). IT WILL BE EASIER
-        // TO CODE WITH A SPACE COMPLEXITY OF O(N LOG N), WHICH IS FINE FOR PURPOSES
-        // OF THIS PROGRAMMING EXERCISES.
+    private void mergeDivisbleByKFirst(int arr[], int k, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
 
-        return;
+        // Create temp arrays
+        int[] leftArray = new int[n1];
+        int[] rightArray = new int[n2];
 
+        // Insert data into the temp arrays
+        for (int i = 0; i < n1; i++)
+            leftArray[i] = arr[left + i];
+        for (int j = 0; j < n2; j++)
+            rightArray[j] = arr[mid + 1 + j];
+
+        // Indices for left, right, and merged arrays
+        int i = 0;
+        int j = 0;
+        int kIndex = left;
+
+        while (i < n1 && j < n2) {
+            // Check if they are divisible using modulo
+            boolean leftDivisible = leftArray[i] % k == 0;
+            boolean rightDivisible = rightArray[j] % k == 0;
+
+            int comp = compare(leftArray[i], rightArray[j], k);
+            if (comp <= 0) {
+                arr[kIndex++] = leftArray[i++];
+            } else {
+                arr[kIndex++] = rightArray[j++];
+            }
+        }
+
+        // Copy remaining elements from leftArray
+        while (i < n1) {
+            arr[kIndex++] = leftArray[i++];
+        }
+
+        // Copy remaining elements from rightArray
+        while (j < n2) {
+            arr[kIndex++] = rightArray[j++];
+        }
     }
+
+    // Comparison function to enforce sorting rules
+    private int compare(int a, int b, int k) {
+        boolean aDivisible = a % k == 0;
+        boolean bDivisible = b % k == 0;
+
+        if (aDivisible && !bDivisible) {
+            // a is divisible by k and b is not
+            return -1;
+        } else if (!aDivisible && bDivisible) {
+            // b is divisible by k and a is not
+            return 1;
+        } else if (aDivisible && bDivisible) {
+            // Both are divisible by k, maintain original order (stable sort)
+            return 0;
+        } else {
+            // Neither is divisible by k, sort in ascending order
+            return Integer.compare(a, b);
+        }
+    }
+
 
 
     /**
@@ -153,11 +208,21 @@ public class ProblemSolutions {
      */
 
     public static boolean asteroidsDestroyed(int mass, int[] asteroids) {
+        // Sort to handle in asc order
+        Arrays.sort(asteroids);
+        long currentMass = mass;
 
-        // YOUR CODE GOES HERE, CONSIDER USING ARRAYS.SORT()
-
-        return false;
-
+        // Iterate through each asteroid
+        for (int asteroid : asteroids) {
+            // Check if the mass is larger than the asteroid, destroying the asteroid
+            if (currentMass >= asteroid) {
+                currentMass += asteroid;
+            } else {
+                // If the mass of the asteroid is greater than the planet's, then it cannot be destroyed
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -191,12 +256,27 @@ public class ProblemSolutions {
      */
 
     public static int numRescueSleds(int[] people, int limit) {
+        // Sort to handle in asc order
+        Arrays.sort(people);
+        int numSleds = 0;
+        int left = 0;
+        int right = people.length - 1;
 
-        // YOUR CODE GOES HERE, CONSIDER USING ARRAYS.SORT
-
-        return -1;
-
+        // Use left and right pointers to process people
+        while (left <= right) {
+            // If there's only one person left (lightest and heaviest are the same)
+            if (left == right) {
+                numSleds++;
+                break;
+            }
+            // Check if both people can handle the sled
+            if (people[left] + people[right] <= limit) {
+                left++;
+            }
+            right--;
+            numSleds++;
+        }
+        return numSleds;
     }
 
-} // End Class ProblemSolutions
-
+}
